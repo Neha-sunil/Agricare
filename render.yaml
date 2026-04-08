@@ -8,23 +8,23 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: MONGO_URI
-        sync: false # You will set this in the Render Dashboard
+        sync: false
       - key: GEMINI_API_KEY
-        sync: false # You will set this in the Render Dashboard
+        sync: false
       - key: DATABASE_NAME
         value: agricare_db
       - key: FRONTEND_URL
         fromService:
           name: agricare-frontend
-          type: static_site
+          type: web
 
-  # Frontend Web App
-  - type: static_site
+  # Frontend Web App (Static site)
+  - type: web
     name: agricare-frontend
-    env: static
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishDir: dist
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
         fromService:
