@@ -1,0 +1,9 @@
+# Nixpacks configuration for Python
+[phases.setup]
+nixPkgs = ["python310", "gcc"]
+
+[phases.install]
+cmds = ["python -m venv /opt/venv && /opt/venv/bin/pip install -r requirements.txt"]
+
+[start]
+cmd = "/opt/venv/bin/uvicorn main:app --host 0.0.0.0 --port $PORT"
