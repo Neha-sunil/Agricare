@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriCare Thailand - Choose Interaction Mode</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --light-green: #eafaf1;
+            --earth-orange: #f39c12;
+            --text-dark: #2c3e50;
+            --white: #ffffff;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, var(--light-green) 0%, #ffffff 100%); display: flex; flex-direction: column; }
+
+        .navbar { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Outfit'; font-size: 1.8rem; font-weight: 800; color: var(--dark-green); display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--earth-orange); }
+
+        .hero { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .hero-card {
+            background: white; width: 100%; max-width: 600px; padding: 60px 40px; border-radius: 40px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.08); text-align: center; border: 1px solid rgba(0,0,0,0.05);
+            animation: slideUp 0.8s ease;
+        }
+
+        .hero-badge {
+            display: inline-block; background: var(--light-green); color: var(--dark-green);
+            padding: 8px 20px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; margin-bottom: 30px;
+        }
+
+        h1 { font-family: 'Outfit'; font-size: 3rem; margin-bottom: 20px; line-height: 1.1; }
+        p { color: #666; font-size: 1.2rem; margin-bottom: 40px; line-height: 1.6; }
+
+        .btn-start {
+            background: var(--earth-orange); color: white; border: none; padding: 20px 50px;
+            border-radius: 50px; font-family: 'Outfit'; font-size: 1.4rem; font-weight: 800;
+            cursor: pointer; transition: var(--transition); box-shadow: 0 15px 35px rgba(243, 156, 18, 0.4);
+            display: flex; align-items: center; gap: 15px; margin: 0 auto;
+        }
+
+        .btn-start:hover { transform: scale(1.05) translateY(-5px); box-shadow: 0 20px 45px rgba(243, 156, 18, 0.6); }
+
+        .floater { position: absolute; opacity: 0.1; font-size: 4rem; color: var(--primary-green); animation: float 10s infinite ease-in-out; }
+        .f1 { top: 20%; left: 15%; }
+        .f2 { bottom: 25%; right: 10%; animation-delay: 2s; }
+        .f3 { top: 50%; left: 80%; animation-delay: 5s; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(15deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 25, 15, 0.6); backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; z-index: 1000; transition: var(--transition);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal-content {
+            background: var(--white); width: 95%; max-width: 800px;
+            border-radius: 40px; padding: 0; position: relative;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9) translateY(40px); transition: var(--transition);
+            max-height: 95vh; overflow-y: auto; overflow-x: hidden;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+        .modal-inner-wrapper { padding: 40px; }
+
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 30px 40px; border-bottom: 1px solid #f0f0f0; background: #fafafa;
+        }
+
+        .modal-close {
+            font-size: 1.5rem; color: #aaa; cursor: pointer; transition: var(--transition);
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: #eee;
+        }
+        .modal-close:hover { color: var(--earth-orange); transform: rotate(90deg); background: #fdebd0; }
+
+        /* REUSED COMPLEX STYLES */
+        .lang-switch { background: #e0e0e0; padding: 4px; border-radius: 50px; display: flex; gap: 4px; }
+        .lang-btn { background: transparent; border: none; padding: 8px 18px; border-radius: 50px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+        .lang-btn.active { background: var(--primary-green); color: white; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
+
+        .steps-nav { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .step-pill { padding: 6px 15px; border-radius: 50px; background: #eee; color: #999; font-weight: 700; font-family: 'Outfit'; font-size: 0.8rem; transition: 0.3s; }
+        .step-pill.active { background: var(--earth-orange); color: white; }
+
+        .mode-selection { text-align: center; animation: slideUp 0.6s ease; }
+        .modal-content h1 { font-family: 'Outfit'; font-size: 2.2rem; margin-bottom: 5px; font-weight: 800; }
+        .subtitle { color: #777; margin-bottom: 30px; font-size: 1rem; }
+
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
+        .option-card {
+            background: white; border: 2px solid #eaeeea; border-radius: 24px; padding: 30px 15px;
+            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+        }
+        .option-card:hover { border-color: var(--primary-green); transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+        .option-card i { font-size: 2.5rem; color: var(--primary-green); }
+        .option-card span { font-weight: 800; font-size: 1.1rem; font-family: 'Outfit'; }
+        .option-card p { font-size: 0.8rem; color: #777; margin: 0; }
+
+        .hero-options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; margin-top: 40px; }
+        @media (min-width: 500px) { .hero-options-grid { grid-template-columns: repeat(4, 1fr); } }
+        
+        .hero-option-card {
+            background: white; border: 2px solid #eaeeea; border-radius: 20px; padding: 20px 10px;
+            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .hero-option-card:hover { border-color: var(--primary-green); transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+        .hero-option-card i { font-size: 2rem; color: var(--primary-green); }
+        .hero-option-card span { font-weight: 800; font-size: 0.9rem; font-family: 'Outfit'; line-height: 1.2; }
+
+        .flow-container { display: none; width: 100%; animation: zoomIn 0.4s ease; }
+        .flow-container.active { display: block; }
+
+        .voice-assistant-card {
+            background: #fdfdfd; border-radius: 28px; padding: 30px; border: 1px solid #f0f0f0; text-align: center; margin-bottom: 20px;
+        }
+        .assistant-avatar {
+            width: 70px; height: 70px; background: var(--light-green); color: var(--primary-green); 
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; margin: 0 auto 15px; animation: bounce 3s infinite;
+        }
+        .listening-indicator {
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            padding: 10px 20px; background: #f0fdf4; border-radius: 50px;
+            width: fit-content; margin: 0 auto 20px; opacity: 0; transition: 0.3s;
+        }
+        .listening-indicator.active { opacity: 1; }
+        .dot { width: 8px; height: 8px; background: var(--primary-green); border-radius: 50%; animation: pulse 1s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .transcript-preview {
+            background: #f8fafc; padding: 12px; border-radius: 15px; margin-bottom: 20px;
+            border: 1px dashed #cbd5e1; color: #64748b; font-style: italic; min-height: 45px;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+
+        .btn-voice { 
+            padding: 10px 20px; border-radius: 50px; border: none; font-weight: 700; 
+            font-family: 'Outfit'; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+        }
+        .btn-ready { 
+            width: 100%; padding: 20px; border-radius: 20px; border: none; 
+            background: var(--primary-green); color: white; font-weight: 800; 
+            font-size: 1.3rem; cursor: pointer; transition: 0.3s; margin-top: 10px; font-family: 'Outfit';
+            box-shadow: 0 12px 25px rgba(46, 204, 113, 0.3);
+        }
+        .btn-ready:hover { background: var(--dark-green); transform: translateY(-5px); box-shadow: 0 15px 35px rgba(46, 204, 113, 0.5); }
+
+        .registration-form { display: none; animation: slideUp 0.5s ease; }
+        .registration-form.active { display: block; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-box { margin-bottom: 25px; text-align: left; }
+        .input-box label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-box input { 
+            width: 100%; padding: 18px 22px; border: 2px solid #edf2ed; 
+            border-radius: 18px; font-size: 1rem; transition: 0.3s; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            background: #ffffff;
+        }
+        .input-box input:focus { border-color: var(--primary-green); outline: none; background: #fafdfc; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.1); }
+        .input-box input.filling-now { border-color: var(--earth-orange); background: #fffcf0; border-width: 3px; box-shadow: 0 0 25px rgba(243,156,18,0.25); }
+
+        .call-screen { background: #0f1711; color: white; border-radius: 28px; padding: 40px 20px; text-align: center; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.5; } }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .modal-content { width: 100%; height: 100%; border-radius: 0; max-height: 100vh; }
+            .modal-inner-wrapper { padding: 20px; }
+            .modal-header { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        <i class="fa-solid fa-leaf"></i> AgriCare <span>Thailand</span>
+    </div>
+</nav>
+
+<div class="hero">
+    <i class="fa-solid fa-cloud floater f1"></i>
+    <i class="fa-solid fa-tractor floater f2"></i>
+    <i class="fa-solid fa-sun floater f3"></i>
+
+    <div class="hero-card">
+        <div class="hero-badge">🌱 Join the Future of Farming</div>
+        <h1>Registration Made <span>Easy</span></h1>
+        <p>Choose your preferred way to sign up. Use your voice, a simulated AI call, or manual entry.</p>
+        
+        <div class="hero-options-grid">
+            <div class="hero-option-card">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Market Intelligence</span>
+            </div>
+            <div class="hero-option-card">
+                <i class="fa-solid fa-robot"></i>
+                <span>AI Sell Insight</span>
+            </div>
+            <div class="hero-option-card" onclick="alert('Redirecting to Auction Hall...')">
+                <i class="fa-solid fa-gavel"></i>
+                <span>Auction Hall</span>
+            </div>
+            <div class="hero-option-card" onclick="openRegistrationModal()">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Register Now</span>
+            </div>
+        </div>
+
+<!-- REGISTRATION MODAL -->
+<div class="modal-overlay" id="regModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="logo" style="font-size: 1.4rem;">
+                <i class="fa-solid fa-leaf"></i> AgriCare <span>TH</span>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="lang-switch">
+                    <button class="lang-btn active" id="btnEn" onclick="setLocale('EN')">EN</button>
+                    <button class="lang-btn" id="btnTh" onclick="setLocale('TH')">TH</button>
+                </div>
+                <div class="modal-close" onclick="closeRegistrationModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-inner-wrapper">
+            <div class="steps-nav">
+                <div class="step-pill active" id="pill1">Step 1</div>
+                <div class="step-pill" id="pill2">Step 2</div>
+                <div class="step-pill" id="pill3">Step 3</div>
+            </div>
+
+            <!-- UI: MODE SELECTION -->
+            <div id="uiStart" class="mode-selection">
+                <h1 id="titleSelect">Farmer Registration</h1>
+                <p id="subSelect" class="subtitle">Select your preferred interaction mode to begin:</p>
+
+                <div class="options-grid">
+                    <div class="option-card" onclick="initMode('voice')">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                        <span id="optVoice">Voice Guidance</span>
+                        <p id="descVoice">Human-like conversation</p>
+                    </div>
+                    <div class="option-card" onclick="initMode('call')">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <span id="optCall">AI Call</span>
+                        <p id="descCall">Simulated phone support</p>
+                    </div>
+                    <div class="option-card" onclick="initMode('manual')">
+                        <i class="fa-solid fa-keyboard"></i>
+                        <span id="optManual">Manual</span>
+                        <p id="descManual">Standard form entry</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UI: ENHANCED VOICE GUIDANCE -->
+            <div id="uiVoice" class="flow-container">
+                <div class="voice-assistant-card">
+                    <div class="assistant-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="speech-msg-box">
+                        <h3 id="vaTopic">AgriCare Assistant</h3>
+                        <p id="vaText">"Ready to help you register."</p>
+                    </div>
+
+                    <div class="listening-indicator" id="listenInd">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <span style="font-weight: 700; color: var(--primary-green); margin-left: 10px;" id="vaListening">LISTENING...</span>
+                    </div>
+
+                    <div class="transcript-preview" id="vaTranscript">"..."</div>
+
+                    <div class="voice-controls" style="display: flex; justify-content: center; gap: 10px;">
+                        <button id="btnVaStart" class="btn-voice btn-start" style="background: var(--primary-green); color: white;" onclick="beginVoiceFlow()">
+                            <i class="fa-solid fa-play"></i> <span id="vaStartText">Start</span>
+                        </button>
+                        <button id="btnVaRepeat" class="btn-voice btn-repeat" style="background: var(--earth-orange); color: white; display: none;" onclick="repeatQuestion()">
+                            <i class="fa-solid fa-rotate-left"></i> <span id="vaRepeatText">Repeat</span>
+                        </button>
+                        <button id="btnVaStop" class="btn-voice btn-stop" style="background: #fee2e2; color: #ef4444; display: none;" onclick="stopVoiceFlow()">
+                            <i class="fa-solid fa-stop"></i> <span id="vaStopText">Stop</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UI: CALL SCREEN -->
+            <div id="uiCall" class="flow-container" style="max-width: 450px; margin: 0 auto;">
+                <div class="call-screen">
+                    <h3 style="color: white; margin-bottom: 10px;">AI Call Mode</h3>
+                    <p style="color: #ccc; margin-bottom: 20px;">Simulating voice call registration...</p>
+                    <button class="btn-ready" onclick="resetModal()">Back to Start</button>
+                </div>
+            </div>
+
+            <!-- UI: REGISTRATION FORM -->
+            <div id="uiForm" class="registration-form">
+                <h2 style="margin-bottom: 20px; font-family: 'Outfit';" id="formTitle">Registration Details</h2>
+                <form id="farmerForm">
+                    <div class="form-grid">
+                        <div class="input-box">
+                            <label id="lblFullName">Full Name</label>
+                            <input type="text" id="fName" name="fullName" placeholder="Your full name" required>
+                        </div>
+                        <div class="input-box">
+                            <label id="lblPhone">Phone Number</label>
+                            <input type="tel" id="fPhone" name="phone" placeholder="Your phone number" required>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-box">
+                            <label id="lblCrop">Crop Type</label>
+                            <input type="text" id="fCrop" name="cropType" placeholder="e.g. Rice" required>
+                        </div>
+                        <div class="input-box">
+                            <label id="lblTerrain">Terrain Type</label>
+                            <input type="text" id="fTerrain" name="terrainType" placeholder="e.g. Clay" required>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #888; background: #f9fbf9; padding: 10px; border-radius: 10px; margin-bottom: 20px;">
+                        <strong>Selected Mode:</strong> <span id="modeDisp" style="font-weight: 700; color: var(--earth-orange);">Manual</span>
+                    </p>
+                    <button type="submit" class="btn-ready" id="btnSubmit">Complete Registration</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Data & Translations ---
+    let locale = 'EN';
+    const locStrings = {
+        EN: {
+            titleSelect: "Farmer Registration", subSelect: "Select your preferred interaction mode to begin:",
+            optVoice: "Voice Guidance", optCall: "AI Call", optManual: "Manual",
+            vaStart: "Start Voice Guidance", vaRepeat: "Repeat Question", vaStop: "Stop Guidance",
+            vaListening: "LISTENING...", vaReady: "Ready to help you register.",
+            lblFullName: "Full Name", lblPhone: "Phone Number", lblCrop: "Crop Type", lblTerrain: "Terrain Type",
+            formTitle: "Registration Details", btnSubmit: "Complete Registration",
+            intro: "Hello! I will help you complete your registration.",
+            q1: "Great! First, what is your full name?",
+            q2: "Thank you. And what is your phone number?",
+            q3: "Got it. What type of crop are you growing?",
+            q4: "Almost done. What is your terrain type?",
+            done: "Thank you. Your registration details have been completed.",
+            retry: "I'm sorry, I didn't catch that. Could you please repeat?"
+        },
+        TH: {
+            titleSelect: "ลงทะเบียนเกษตรกร", subSelect: "เลือกรูปแบบการใช้งานเพื่อเริ่มต้น:",
+            optVoice: "เสียงนำทาง", optCall: "โทรสาย AI", optManual: "ลงทะเบียนเอง",
+            vaStart: "เริ่มการนำทางด้วยเสียง", vaRepeat: "ฟังซ้ำ", vaStop: "หยุด",
+            vaListening: "กำลังฟัง...", vaReady: "พร้อมช่วยคุณลงทะเบียนแล้วค่ะ",
+            lblFullName: "ชื่อ-นามสกุล", lblPhone: "เบอร์โทรศัพท์", lblCrop: "ชนิดพืช", lblTerrain: "ลักษณะดิน",
+            formTitle: "ข้อมูลการลงทะเบียน", btnSubmit: "เสร็จสิ้นการลงทะเบียน",
+            intro: "สวัสดีค่ะ ฉันจะช่วยคุณลงทะเบียนนะคะ",
+            q1: "เริ่มแรก ขอทราบชื่อ-นามสกุลของคุณค่ะ",
+            q2: "ขอบคุณค่ะ ขอทราบเบอร์โทรศัพท์ด้วยนะคะ",
+            q3: "ปลูกพืชชนิดไหนอยู่คะ?",
+            q4: "ลักษณะดินเป็นอย่างไรคะ?",
+            done: "ขอบคุณค่ะ การลงทะเบียนของคุณเสร็จสมบูรณ์แล้ว",
+            retry: "ขออภัยค่ะ ฉันไม่ได้ยิน ช่วยพูดอีกครั้งนะคะ?"
+        }
+    };
+
+    const qOrder = [
+        { id: 'fName', key: 'q1' },
+        { id: 'fPhone', key: 'q2' },
+        { id: 'fCrop', key: 'q3' },
+        { id: 'fTerrain', key: 'q4' }
+    ];
+
+    let currentQ = 0;
+    let recognition;
+    let isFlowRunning = false;
+    const synth = window.speechSynthesis;
+
+    // --- Modal Control ---
+    function openRegistrationModal() {
+        const modal = document.getElementById('regModal');
+        modal.classList.add('active');
+        resetModal(); // Reset to Step 1 on open
+    }
+
+    function closeRegistrationModal() {
+        document.getElementById('regModal').classList.remove('active');
+        stopVoiceFlow();
+    }
+
+    function resetModal() {
+        document.getElementById('uiStart').style.display = 'block';
+        document.getElementById('uiVoice').classList.remove('active');
+        document.getElementById('uiCall').classList.remove('active');
+        document.getElementById('uiForm').classList.remove('active');
+        document.getElementById('pill1').classList.add('active');
+        document.getElementById('pill2').classList.remove('active');
+        document.getElementById('pill3').classList.remove('active');
+        stopVoiceFlow();
+        updateTexts();
+    }
+
+    // --- Core Logic ---
+    function setLocale(l) {
+        locale = l;
+        document.getElementById('btnEn').classList.toggle('active', l === 'EN');
+        document.getElementById('btnTh').classList.toggle('active', l === 'TH');
+        updateTexts();
+    }
+
+    function updateTexts() {
+        const s = locStrings[locale];
+        document.getElementById('titleSelect').innerText = s.titleSelect;
+        document.getElementById('subSelect').innerText = s.subSelect;
+        document.getElementById('optVoice').innerText = s.optVoice;
+        document.getElementById('optCall').innerText = s.optCall;
+        document.getElementById('optManual').innerText = s.optManual;
+        document.getElementById('vaListening').innerText = s.vaListening;
+        document.getElementById('vaText').innerText = `"${s.vaReady}"`;
+        document.getElementById('lblFullName').innerText = s.lblFullName;
+        document.getElementById('lblPhone').innerText = s.lblPhone;
+        document.getElementById('lblCrop').innerText = s.lblCrop;
+        document.getElementById('lblTerrain').innerText = s.lblTerrain;
+        document.getElementById('formTitle').innerText = s.formTitle;
+        document.getElementById('btnSubmit').innerText = s.btnSubmit;
+    }
+
+    function initMode(m) {
+        const s = locStrings[locale];
+        document.getElementById('modeDisp').innerText = s[`opt${m.charAt(0).toUpperCase() + m.slice(1)}`];
+        document.getElementById('uiStart').style.display = 'none';
+        document.getElementById('pill1').classList.remove('active');
+        document.getElementById('pill2').classList.add('active');
+
+        if (m === 'voice') {
+            document.getElementById('uiVoice').classList.add('active');
+            document.getElementById('uiForm').classList.add('active');
+        } else if (m === 'manual') {
+            document.getElementById('uiForm').classList.add('active');
+            document.getElementById('pill3').classList.add('active');
+        } else {
+            document.getElementById('uiCall').classList.add('active');
+        }
+    }
+
+    // --- Voice Guidance Engine ---
+    function beginVoiceFlow() {
+        isFlowRunning = true;
+        currentQ = 0;
+        document.getElementById('btnVaStart').style.display = 'none';
+        document.getElementById('btnVaRepeat').style.display = 'flex';
+        document.getElementById('btnVaStop').style.display = 'flex';
+        
+        speak(locStrings[locale].intro, () => {
+            askQuestion();
+        });
+    }
+
+    function askQuestion() {
+        if (!isFlowRunning) return;
+        if (currentQ >= qOrder.length) {
+            finishFlow();
+            return;
+        }
+
+        const q = qOrder[currentQ];
+        const text = locStrings[locale][q.key];
+        
+        resetInputFocus();
+        document.getElementById(q.id).classList.add('filling-now');
+        
+        document.getElementById('vaText').innerText = `"${text}"`;
+        speak(text, () => {
+            listen(q.id);
+        });
+    }
+
+    function speak(text, callback) {
+        if (!isFlowRunning) return;
+        synth.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = locale === 'EN' ? 'en-US' : 'th-TH';
+        utterance.rate = 1.0;
+        utterance.onend = callback;
+        synth.speak(utterance);
+    }
+
+    function listen(fieldId) {
+        if (!isFlowRunning) return;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Speech recognition not supported.");
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.lang = locale === 'EN' ? 'en-US' : 'th-TH';
+        recognition.interimResults = false;
+        
+        document.getElementById('listenInd').classList.add('active');
+        document.getElementById('vaTranscript').innerText = "...";
+
+        recognition.onresult = (event) => {
+            const result = event.results[0][0].transcript;
+            document.getElementById('vaTranscript').innerText = `"${result}"`;
+            document.getElementById(fieldId).value = result;
+            document.getElementById(fieldId).classList.remove('filling-now');
+            
+            document.getElementById('listenInd').classList.remove('active');
+            currentQ++;
+            setTimeout(askQuestion, 1200);
+        };
+
+        recognition.onerror = (err) => {
+            console.error("Recognition Error:", err.error);
+            document.getElementById('listenInd').classList.remove('active');
+            if (err.error === 'no-speech' && isFlowRunning) {
+                speak(locStrings[locale].retry, () => listen(fieldId));
+            }
+        };
+
+        recognition.start();
+    }
+
+    function repeatQuestion() {
+        if (!isFlowRunning) return;
+        synth.cancel();
+        if(recognition) recognition.abort();
+        askQuestion();
+    }
+
+    function stopVoiceFlow() {
+        isFlowRunning = false;
+        synth.cancel();
+        if(recognition) recognition.abort();
+        
+        const btnStart = document.getElementById('btnVaStart');
+        if(btnStart) btnStart.style.display = 'flex';
+        const btnRepeat = document.getElementById('btnVaRepeat');
+        if(btnRepeat) btnRepeat.style.display = 'none';
+        const btnStop = document.getElementById('btnVaStop');
+        if(btnStop) btnStop.style.display = 'none';
+        
+        const vaText = document.getElementById('vaText');
+        if(vaText) vaText.innerText = `"${locStrings[locale].vaReady}"`;
+        const listenInd = document.getElementById('listenInd');
+        if(listenInd) listenInd.classList.remove('active');
+        resetInputFocus();
+    }
+
+    function finishFlow() {
+        speak(locStrings[locale].done, () => {
+            document.getElementById('pill3').classList.add('active');
+            stopVoiceFlow();
+        });
+    }
+
+    function resetInputFocus() {
+        qOrder.forEach(q => {
+            const el = document.getElementById(q.id);
+            if(el) el.classList.remove('filling-now');
+        });
+    }
+
+    // Modal behavior
+    window.onclick = function(event) {
+        const modal = document.getElementById('regModal');
+        if (event.target == modal) {
+            closeRegistrationModal();
+        }
+    }
+
+    document.getElementById('farmerForm').onsubmit = (e) => {
+        e.preventDefault();
+        alert("Registration Complete!");
+        closeRegistrationModal();
+    };
+
+    updateTexts();
+</script>
+
+</body>
+</html>

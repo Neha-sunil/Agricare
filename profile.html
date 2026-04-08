@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Registration - AgriCare Thailand</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #27ae60;
+            --accent: #f39c12;
+            --dark: #2c3e50;
+            --bg: #f9fbf9;
+            --card: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--dark); overflow-x: hidden; }
+
+        .app-wrapper { max-width: 1000px; margin: 0 auto; min-height: 100vh; padding: 20px; display: flex; flex-direction: column; }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0 40px; }
+        .logo { font-family: 'Outfit'; font-size: 1.8rem; font-weight: 800; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--accent); }
+
+        /* Language Toggle */
+        .lang-switch { background: #e0e0e0; padding: 4px; border-radius: 50px; display: flex; gap: 4px; }
+        .lang-btn { background: transparent; border: none; padding: 8px 18px; border-radius: 50px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+        .lang-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
+
+        /* Steps */
+        .steps-nav { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; }
+        .step-pill { padding: 8px 20px; border-radius: 50px; background: #eee; color: #999; font-weight: 700; font-family: 'Outfit'; font-size: 0.9rem; transition: 0.3s; }
+        .step-pill.active { background: var(--accent); color: white; }
+
+        /* Step 1: Mode Selection */
+        .mode-selection { text-align: center; animation: slideUp 0.6s ease; }
+        h1 { font-family: 'Outfit'; font-size: 2.8rem; margin-bottom: 10px; font-weight: 800; }
+        .subtitle { color: #777; margin-bottom: 40px; }
+
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; width: 100%; }
+
+        .option-card {
+            background: var(--card); border: 2px solid #eaeeea; border-radius: 28px; padding: 40px 20px;
+            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        .option-card:hover { border-color: var(--primary); transform: translateY(-12px); box-shadow: var(--shadow); }
+        .option-card i { font-size: 3rem; color: var(--primary); }
+        .option-card span { font-weight: 800; font-size: 1.2rem; font-family: 'Outfit'; }
+        .option-card p { font-size: 0.9rem; color: #777; margin: 0; }
+
+        /* General UI for Flow */
+        .flow-container { display: none; width: 100%; max-width: 700px; margin: 0 auto; animation: zoomIn 0.4s ease; }
+        .flow-container.active { display: block; }
+
+        /* ENHANCED Voice Guidance UI */
+        .voice-assistant-card {
+            background: white; border-radius: 32px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+            text-align: center; border: 1px solid rgba(46, 204, 113, 0.1); margin-bottom: 40px;
+        }
+        .assistant-avatar {
+            width: 90px; height: 90px; background: var(--light-green); color: var(--primary); 
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 2.5rem; margin: 0 auto 20px; animation: bounce 3s infinite;
+        }
+        .speech-msg-box { min-height: 80px; margin-bottom: 30px; }
+        .speech-msg-box h3 { font-family: 'Outfit'; font-size: 1.6rem; color: var(--dark); margin-bottom: 10px; }
+        .speech-msg-box p { color: #666; font-size: 1.1rem; }
+
+        .listening-indicator {
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            padding: 15px 30px; background: #f0fdf4; border-radius: 50px;
+            width: fit-content; margin: 0 auto 30px; opacity: 0; transition: 0.3s;
+        }
+        .listening-indicator.active { opacity: 1; }
+        .dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: pulse 1s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .transcript-preview {
+            background: #f8fafc; padding: 15px; border-radius: 15px; margin-bottom: 30px;
+            border: 1px dashed #cbd5e1; color: #64748b; font-style: italic; min-height: 50px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .voice-controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .btn-voice { 
+            padding: 12px 25px; border-radius: 50px; border: none; font-weight: 700; 
+            font-family: 'Outfit'; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+        }
+        .btn-start { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3); }
+        .btn-repeat { background: var(--accent); color: white; display: none; }
+        .btn-stop { background: #fee2e2; color: #ef4444; display: none; }
+        .btn-voice:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        /* Unified Registration Form */
+        .registration-form { background: white; border-radius: 32px; padding: 40px; box-shadow: var(--shadow); display: none; }
+        .registration-form.active { display: block; animation: slideUp 0.5s ease; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .input-box { margin-bottom: 25px; }
+        .input-box label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #555; }
+        .input-box input { width: 100%; padding: 16px 20px; border: 2px solid #eaeeea; border-radius: 16px; font-size: 1rem; transition: 0.3s; }
+        .input-box input:focus { border-color: var(--primary); outline: none; background: #fafdfc; }
+        .input-box input.filling-now { border-color: var(--accent); background: #fffcf0; border-width: 3px; box-shadow: 0 0 15px rgba(243,156,18,0.15); }
+
+        .btn-ready { width: 100%; padding: 20px; border-radius: 16px; border: none; background: var(--primary); color: white; font-weight: 800; font-size: 1.3rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-ready:hover { background: var(--secondary); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); }
+
+        /* Call Screen (Simplified for this turn) */
+        .call-screen { background: #0f1711; color: white; border-radius: 32px; padding: 50px 30px; text-align: center; }
+
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.5; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        @media (max-width: 800px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div class="header">
+        <div class="logo">
+            <i class="fa-solid fa-leaf"></i> AgriCare <span>Thailand</span>
+        </div>
+        <div class="lang-switch">
+            <button class="lang-btn active" id="btnEn" onclick="setLocale('EN')">EN</button>
+            <button class="lang-btn" id="btnTh" onclick="setLocale('TH')">TH</button>
+        </div>
+    </div>
+
+    <div class="steps-nav">
+        <div class="step-pill active" id="pill1">Step 1</div>
+        <div class="step-pill" id="pill2">Step 2</div>
+        <div class="step-pill" id="pill3">Step 3</div>
+    </div>
+
+    <!-- UI: MODE SELECTION -->
+    <div id="uiStart" class="mode-selection">
+        <h1 id="titleSelect">Farmer Registration</h1>
+        <p id="subSelect" class="subtitle">Select your preferred interaction mode to begin:</p>
+
+        <div class="options-grid">
+            <div class="option-card" onclick="initMode('voice')">
+                <i class="fa-solid fa-microphone-lines"></i>
+                <span id="optVoice">Voice Guidance</span>
+                <p id="descVoice">Human-like conversation</p>
+            </div>
+            <div class="option-card" onclick="initMode('call')">
+                <i class="fa-solid fa-phone-volume"></i>
+                <span id="optCall">AI Call</span>
+                <p id="descCall">Simulated phone support</p>
+            </div>
+            <div class="option-card" onclick="initMode('manual')">
+                <i class="fa-solid fa-keyboard"></i>
+                <span id="optManual">Manual</span>
+                <p id="descManual">Standard form entry</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI: ENHANCED VOICE GUIDANCE -->
+    <div id="uiVoice" class="flow-container">
+        <div class="voice-assistant-card">
+            <div class="assistant-avatar">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="speech-msg-box">
+                <h3 id="vaTopic">AgriCare Assistant</h3>
+                <p id="vaText">"Ready to help you register."</p>
+            </div>
+
+            <div class="listening-indicator" id="listenInd">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <span style="font-weight: 700; color: var(--primary); margin-left: 10px;" id="vaListening">LISTENING...</span>
+            </div>
+
+            <div class="transcript-preview" id="vaTranscript">"..."</div>
+
+            <div class="voice-controls">
+                <button id="btnVaStart" class="btn-voice btn-start" onclick="beginVoiceFlow()">
+                    <i class="fa-solid fa-play"></i> <span id="vaStartText">Start Voice Guidance</span>
+                </button>
+                <button id="btnVaRepeat" class="btn-voice btn-repeat" onclick="repeatQuestion()">
+                    <i class="fa-solid fa-rotate-left"></i> <span id="vaRepeatText">Repeat Question</span>
+                </button>
+                <button id="btnVaStop" class="btn-voice btn-stop" onclick="stopVoiceFlow()">
+                    <i class="fa-solid fa-stop"></i> <span id="vaStopText">Stop Guidance</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI: CALL SCREEN (Fallback/Placeholder) -->
+    <div id="uiCall" class="flow-container" style="max-width: 450px;">
+        <div class="call-screen">
+            <h3>AI Call Mode</h3>
+            <p>Simulating voice call registration...</p>
+            <button class="btn-ready" onclick="location.reload()">Back to Start</button>
+        </div>
+    </div>
+
+    <!-- UI: REGISTRATION FORM -->
+    <div id="uiForm" class="registration-form">
+        <h2 style="margin-bottom: 25px; font-family: 'Outfit';" id="formTitle">Registration Details</h2>
+        <form id="farmerForm">
+            <div class="form-grid">
+                <div class="input-box">
+                    <label id="lblFullName">Full Name</label>
+                    <input type="text" id="fName" name="fullName" placeholder="Your full name" required>
+                </div>
+                <div class="input-box">
+                    <label id="lblPhone">Phone Number</label>
+                    <input type="tel" id="fPhone" name="phone" placeholder="Your phone number" required>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="input-box">
+                    <label id="lblCrop">Crop Type</label>
+                    <input type="text" id="fCrop" name="cropType" placeholder="e.g. Rice" required>
+                </div>
+                <div class="input-box">
+                    <label id="lblTerrain">Terrain Type</label>
+                    <input type="text" id="fTerrain" name="terrainType" placeholder="e.g. Clay" required>
+                </div>
+            </div>
+            <p style="font-size: 0.8rem; color: #999;">Selected Mode: <span id="modeDisp" style="font-weight: 700; color: var(--accent);">Manual</span></p>
+            <button type="submit" class="btn-ready" id="btnSubmit">Complete Registration</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // --- Data & Translations ---
+    let locale = 'EN';
+    const locStrings = {
+        EN: {
+            titleSelect: "Farmer Registration", subSelect: "Select your preferred interaction mode to begin:",
+            optVoice: "Voice Guidance", optCall: "AI Call", optManual: "Manual",
+            vaStart: "Start Voice Guidance", vaRepeat: "Repeat Question", vaStop: "Stop Guidance",
+            vaListening: "LISTENING...", vaReady: "Ready to help you register.",
+            lblFullName: "Full Name", lblPhone: "Phone Number", lblCrop: "Crop Type", lblTerrain: "Terrain Type",
+            formTitle: "Registration Details", btnSubmit: "Complete Registration",
+            intro: "Hello! I will help you complete your registration.",
+            q1: "Great! First, what is your full name?",
+            q2: "Thank you. And what is your phone number?",
+            q3: "Got it. What type of crop are you growing?",
+            q4: "Almost done. What is your terrain type?",
+            done: "Thank you. Your registration details have been completed.",
+            retry: "I'm sorry, I didn't catch that. Could you please repeat?"
+        },
+        TH: {
+            titleSelect: "ลงทะเบียนเกษตรกร", subSelect: "เลือกรูปแบบการใช้งานเพื่อเริ่มต้น:",
+            optVoice: "เสียงนำทาง", optCall: "โทรสาย AI", optManual: "ลงทะเบียนเอง",
+            vaStart: "เริ่มการนำทางด้วยเสียง", vaRepeat: "ฟังซ้ำ", vaStop: "หยุด",
+            vaListening: "กำลังฟัง...", vaReady: "พร้อมช่วยคุณลงทะเบียนแล้วค่ะ",
+            lblFullName: "ชื่อ-นามสกุล", lblPhone: "เบอร์โทรศัพท์", lblCrop: "ชนิดพืช", lblTerrain: "ลักษณะดิน",
+            formTitle: "ข้อมูลการลงทะเบียน", btnSubmit: "เสร็จสิ้นการลงทะเบียน",
+            intro: "สวัสดีค่ะ ฉันจะช่วยคุณลงทะเบียนนะคะ",
+            q1: "เริ่มแรก ขอทราบชื่อ-นามสกุลของคุณค่ะ",
+            q2: "ขอบคุณค่ะ ขอทราบเบอร์โทรศัพท์ด้วยนะคะ",
+            q3: "ปลูกพืชชนิดไหนอยู่คะ?",
+            q4: "ลักษณะดินเป็นอย่างไรคะ?",
+            done: "ขอบคุณค่ะ การลงทะเบียนของคุณเสร็จสมบูรณ์แล้ว",
+            retry: "ขออภัยค่ะ ฉันไม่ได้ยิน ช่วยพูดอีกครั้งนะคะ?"
+        }
+    };
+
+    const qOrder = [
+        { id: 'fName', key: 'q1' },
+        { id: 'fPhone', key: 'q2' },
+        { id: 'fCrop', key: 'q3' },
+        { id: 'fTerrain', key: 'q4' }
+    ];
+
+    let currentQ = 0;
+    let recognition;
+    let isFlowRunning = false;
+    const synth = window.speechSynthesis;
+
+    // --- Core Logic ---
+
+    function setLocale(l) {
+        locale = l;
+        document.getElementById('btnEn').classList.toggle('active', l === 'EN');
+        document.getElementById('btnTh').classList.toggle('active', l === 'TH');
+        updateTexts();
+    }
+
+    function updateTexts() {
+        const s = locStrings[locale];
+        document.getElementById('titleSelect').innerText = s.titleSelect;
+        document.getElementById('subSelect').innerText = s.subSelect;
+        document.getElementById('optVoice').innerText = s.optVoice;
+        document.getElementById('optCall').innerText = s.optCall;
+        document.getElementById('optManual').innerText = s.optManual;
+        document.getElementById('vaStartText').innerText = s.vaStart;
+        document.getElementById('vaRepeatText').innerText = s.vaRepeat;
+        document.getElementById('vaStopText').innerText = s.vaStop;
+        document.getElementById('vaListening').innerText = s.vaListening;
+        document.getElementById('vaText').innerText = `"${s.vaReady}"`;
+        document.getElementById('lblFullName').innerText = s.lblFullName;
+        document.getElementById('lblPhone').innerText = s.lblPhone;
+        document.getElementById('lblCrop').innerText = s.lblCrop;
+        document.getElementById('lblTerrain').innerText = s.lblTerrain;
+        document.getElementById('formTitle').innerText = s.formTitle;
+        document.getElementById('btnSubmit').innerText = s.btnSubmit;
+    }
+
+    function initMode(m) {
+        const s = locStrings[locale];
+        document.getElementById('modeDisp').innerText = s[`opt${m.charAt(0).toUpperCase() + m.slice(1)}`];
+        document.getElementById('uiStart').style.display = 'none';
+        document.getElementById('pill1').classList.remove('active');
+        document.getElementById('pill2').classList.add('active');
+
+        if (m === 'voice') {
+            document.getElementById('uiVoice').classList.add('active');
+            document.getElementById('uiForm').classList.add('active');
+        } else if (m === 'manual') {
+            document.getElementById('uiForm').classList.add('active');
+            document.getElementById('pill3').classList.add('active');
+        } else {
+            document.getElementById('uiCall').classList.add('active');
+        }
+    }
+
+    // --- Voice Guidance Engine ---
+
+    function beginVoiceFlow() {
+        isFlowRunning = true;
+        currentQ = 0;
+        document.getElementById('btnVaStart').style.display = 'none';
+        document.getElementById('btnVaRepeat').style.display = 'flex';
+        document.getElementById('btnVaStop').style.display = 'flex';
+        
+        speak(locStrings[locale].intro, () => {
+            askQuestion();
+        });
+    }
+
+    function askQuestion() {
+        if (!isFlowRunning) return;
+        if (currentQ >= qOrder.length) {
+            finishFlow();
+            return;
+        }
+
+        const q = qOrder[currentQ];
+        const text = locStrings[locale][q.key];
+        
+        // Highlight input field
+        resetInputFocus();
+        document.getElementById(q.id).classList.add('filling-now');
+        
+        document.getElementById('vaText').innerText = `"${text}"`;
+        speak(text, () => {
+            listen(q.id);
+        });
+    }
+
+    function speak(text, callback) {
+        if (!isFlowRunning) return;
+        synth.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = locale === 'EN' ? 'en-US' : 'th-TH';
+        utterance.rate = 1.0;
+        utterance.onend = callback;
+        synth.speak(utterance);
+    }
+
+    function listen(fieldId) {
+        if (!isFlowRunning) return;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Speech recognition not supported.");
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.lang = locale === 'EN' ? 'en-US' : 'th-TH';
+        recognition.interimResults = false;
+        
+        document.getElementById('listenInd').classList.add('active');
+        document.getElementById('vaTranscript').innerText = "...";
+
+        recognition.onresult = (event) => {
+            const result = event.results[0][0].transcript;
+            document.getElementById('vaTranscript').innerText = `"${result}"`;
+            document.getElementById(fieldId).value = result;
+            document.getElementById(fieldId).classList.remove('filling-now');
+            
+            document.getElementById('listenInd').classList.remove('active');
+            currentQ++;
+            setTimeout(askQuestion, 1200);
+        };
+
+        recognition.onerror = (err) => {
+            console.error("Recognition Error:", err.error);
+            document.getElementById('listenInd').classList.remove('active');
+            if (err.error === 'no-speech' && isFlowRunning) {
+                speak(locStrings[locale].retry, () => listen(fieldId));
+            }
+        };
+
+        recognition.start();
+    }
+
+    function repeatQuestion() {
+        if (!isFlowRunning) return;
+        synth.cancel();
+        if(recognition) recognition.abort();
+        askQuestion();
+    }
+
+    function stopVoiceFlow() {
+        isFlowRunning = false;
+        synth.cancel();
+        if(recognition) recognition.abort();
+        
+        document.getElementById('btnVaStart').style.display = 'flex';
+        document.getElementById('btnVaRepeat').style.display = 'none';
+        document.getElementById('btnVaStop').style.display = 'none';
+        document.getElementById('vaText').innerText = `"${locStrings[locale].vaReady}"`;
+        document.getElementById('listenInd').classList.remove('active');
+        resetInputFocus();
+    }
+
+    function finishFlow() {
+        speak(locStrings[locale].done, () => {
+            document.getElementById('pill3').classList.add('active');
+            stopVoiceFlow();
+        });
+    }
+
+    function resetInputFocus() {
+        qOrder.forEach(q => document.getElementById(q.id).classList.remove('filling-now'));
+    }
+
+    document.getElementById('farmerForm').onsubmit = (e) => {
+        e.preventDefault();
+        alert("Registration Complete!");
+    };
+
+    updateTexts();
+</script>
+
+</body>
+</html>
