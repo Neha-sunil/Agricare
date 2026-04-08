@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 motor
+pymongo
 pydantic
 pydantic-settings
 google-generativeai
@@ -8,3 +9,4 @@ python-multipart
 numpy
 Pillow
 python-dotenv
+httpx
