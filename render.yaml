@@ -16,10 +16,10 @@ services:
       - key: FRONTEND_URL
         fromService:
           name: agricare-frontend
-          type: static
+          type: web
 
   # Frontend Web App
-  - type: static
+  - type: web
     name: agricare-frontend
     env: static
     rootDir: frontend
