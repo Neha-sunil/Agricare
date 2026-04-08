@@ -3,9 +3,8 @@ uvicorn
 motor
 pydantic
 pydantic-settings
-python-dotenv
-pymongo
-nltk
 google-generativeai
 python-multipart
-httpx
+numpy
+Pillow
+python-dotenv
