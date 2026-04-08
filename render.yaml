@@ -18,13 +18,13 @@ services:
           name: agricare-frontend
           type: web
 
-  # Frontend Web App (Static site)
+  # Frontend Web App (Static Site)
   - type: web
     name: agricare-frontend
-    runtime: static
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishDir: ./dist
     envVars:
       - key: VITE_API_URL
         fromService:
