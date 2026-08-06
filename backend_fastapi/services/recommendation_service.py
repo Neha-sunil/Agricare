@@ -15,7 +15,7 @@ class RecommendationService:
         if gemini_api_key:
             try:
                 genai.configure(api_key=gemini_api_key)
-                model = genai.GenerativeModel("gemini-1.5-pro-latest")
+                model = genai.GenerativeModel("gemini-1.5-flash")
                 
                 prompt = f"""
                 You are an expert agronomist AI. Provide crop recommendations based on the following farm profile:
@@ -30,7 +30,9 @@ class RecommendationService:
                         "reason": "Why it's a good fit based on the farm data",
                         "water_need": "Low / Moderate / High / Very High",
                         "care_level": "Minimal / Low / Moderate / High",
-                        "time_to_harvest": "Estimated time (e.g., 3 months)"
+                        "time_to_harvest": "Estimated time (e.g., 3 months)",
+                        "weather": "Ideal Temp (e.g. 28-32°C)",
+                        "humidity": "Optimal Humidity (e.g. 70-80%)"
                     }}
                 ]
                 """
@@ -58,7 +60,9 @@ class RecommendationService:
                 "reason": "High rainfall and warm temperature match rice cultivation needs.",
                 "water_need": "High",
                 "care_level": "Moderate",
-                "time_to_harvest": "4 months"
+                "time_to_harvest": "4 months",
+                "weather": "Warm/Wet (25-35°C)",
+                "humidity": "High (>80%)"
             })
             
         # 2. Corn
@@ -123,7 +127,7 @@ class RecommendationService:
         if gemini_api_key:
             try:
                 genai.configure(api_key=gemini_api_key)
-                model = genai.GenerativeModel("gemini-1.5-pro-latest")
+                model = genai.GenerativeModel("gemini-1.5-flash")
                 prompt = f"""
                 You are an expert agronomist AI.
                 Evaluate if the crop '{crop_name}' is suitable for this farm profile:
@@ -137,6 +141,8 @@ class RecommendationService:
                     "water_need": "Low/Moderate/High",
                     "care_level": "Minimal/Low/Moderate/High",
                     "time_to_harvest": "Estimated duration (e.g. 3 months)",
+                    "weather": "Current Season Suitability (e.g. Optimal 30°C)",
+                    "humidity": "Moisture Analysis (e.g. 75% Humidity OK)",
                     "alternatives": ["Crop A", "Crop B"] // Only if is_suitable=false, else empty array
                 }}
                 """
@@ -155,6 +161,8 @@ class RecommendationService:
             "water_need": "Medium to High",
             "care_level": "Moderate",
             "time_to_harvest": "3-4 Months",
+            "weather": "Suitable (27°C)",
+            "humidity": "75%",
             "alternatives": [] if is_suitable else ["Corn", "Beans"]
         }
 

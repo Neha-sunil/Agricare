@@ -293,11 +293,14 @@ const PreCare = ({ locale: parentLocale, onBack, onGoToPostHarvest }) => {
 
     const startAssistant = (path) => {
         setPathChosen(path);
+        const currentProfileId = profileId || localStorage.getItem('farm_profile_id');
+        
         if (path === 'A') {
             setCurrentPhase(PHASE.INPUT_CROP);
         } else {
-            if (profileId) {
-                refreshRecommendations(profileId);
+            if (currentProfileId) {
+                setProfileId(currentProfileId);
+                refreshRecommendations(currentProfileId);
             } else {
                 setCurrentPhase(PHASE.PLANNER);
                 setAssistantMode(MODE.COLLECTING);
@@ -768,13 +771,75 @@ const PreCare = ({ locale: parentLocale, onBack, onGoToPostHarvest }) => {
 
                     {/* PHASE: DATA COLLECTION (PLANNER) */}
                     {currentPhase === PHASE.PLANNER && (
-                        <div className="planner-view animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-                            <div style={{ background: '#fffcf0', border: '2px solid #ffeeba', padding: '20px', borderRadius: '20px', marginBottom: '40px', color: '#856404', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '15px', justifyContent: 'center' }}>
-                                <div className="spinner" style={{ borderTopColor: '#f39c12', borderWidth: '4px' }}></div>
-                                {locale === 'EN' ? "AI is actively collecting your land profile via Voice Assistant..." : "AI กำลังรวบรวมข้อมูลพื้นที่ของคุณผ่านผู้ช่วยเสียง..."}
+                        <div className="planner-view animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                                <div className="card-icon" style={{ margin: '0 auto 20px', background: '#fffcf0', color: '#f59e0b' }}><i className="fa-solid fa-clipboard-list"></i></div>
+                                <h2 style={{ fontFamily: 'Outfit', fontSize: '2.5rem' }}>{locale === 'EN' ? "Farm Profile Analysis" : "การวิเคราะห์โปรไฟล์ฟาร์ม"}</h2>
+                                <p style={{ color: '#64748b', fontSize: '1.2rem' }}>{locale === 'EN' ? "Tell us about your land to get the best AI recommendations." : "บอกข้อมูลพื้นที่เพื่อรับคำแนะนำที่ดีที่สุดจาก AI"}</p>
                             </div>
-                            <h2 style={{ fontFamily: 'Outfit', fontSize: '2.5rem', color: '#1e293b' }}>{locale === 'EN' ? "Farm Profile Analysis" : "การวิเคราะห์โปรไฟล์ฟาร์ม"}</h2>
-                            <p style={{ color: '#64748b', fontSize: '1.2rem', marginTop: '10px' }}>{locale === 'EN' ? "Please answer the AI assistant's questions." : "โปรดตอบคำถามของผู้ช่วย AI"}</p>
+
+                            <div style={{ background: 'white', padding: '40px', borderRadius: '30px', boxShadow: '0 20px 50px rgba(0,0,0,0.05)', display: 'grid', gap: '30px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div className="form-group">
+                                        <label style={{ fontWeight: 800, color: '#64748b', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>{locale === 'EN' ? "Location (Province/City)" : "พื้นที่/จังหวัด"}</label>
+                                        <input 
+                                            type="text" 
+                                            value={formData.location} 
+                                            onChange={(e) => setFormData(p => ({...p, location: e.target.value}))}
+                                            placeholder="e.g. Chiang Mai"
+                                            style={{ width: '100%', padding: '15px', borderRadius: '15px', border: '2px solid #f1f5f9', outline: 'none', fontWeight: 600 }}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label style={{ fontWeight: 800, color: '#64748b', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>{locale === 'EN' ? "Land Area (Rai)" : "จำนวนไร่"}</label>
+                                        <input 
+                                            type="number" 
+                                            value={formData.landArea} 
+                                            onChange={(e) => setFormData(p => ({...p, landArea: e.target.value}))}
+                                            placeholder="5.0"
+                                            style={{ width: '100%', padding: '15px', borderRadius: '15px', border: '2px solid #f1f5f9', outline: 'none', fontWeight: 600 }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div className="form-group">
+                                        <label style={{ fontWeight: 800, color: '#64748b', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>{locale === 'EN' ? "Soil Type" : "ประเภทดิน"}</label>
+                                        <select 
+                                            value={formData.soilType} 
+                                            onChange={(e) => setFormData(p => ({...p, soilType: e.target.value}))}
+                                            style={{ width: '100%', padding: '15px', borderRadius: '15px', border: '2px solid #f1f5f9', outline: 'none', fontWeight: 600, background: 'white' }}
+                                        >
+                                            <option value="">Select Soil</option>
+                                            <option value="Loamy">Loamy (ดินร่วน)</option>
+                                            <option value="Clay">Clay (ดินเหนียว)</option>
+                                            <option value="Sandy">Sandy (ดินทราย)</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label style={{ fontWeight: 800, color: '#64748b', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>{locale === 'EN' ? "Irrigation" : "ระบบชลประทาน"}</label>
+                                        <select 
+                                            value={formData.irrigationSystem} 
+                                            onChange={(e) => setFormData(p => ({...p, irrigationSystem: e.target.value}))}
+                                            style={{ width: '100%', padding: '15px', borderRadius: '15px', border: '2px solid #f1f5f9', outline: 'none', fontWeight: 600, background: 'white' }}
+                                        >
+                                            <option value="">Select System</option>
+                                            <option value="Strong">Strong (แข็งแรง)</option>
+                                            <option value="Moderate">Moderate (ปานกลาง)</option>
+                                            <option value="None">None (ไม่มี)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={finishDataCollection}
+                                    disabled={!formData.location || !formData.landArea || isAnalyzing}
+                                    className="btn-big"
+                                    style={{ background: (!formData.location || !formData.landArea || isAnalyzing) ? '#cbd5e1' : 'var(--primary)', marginTop: '20px' }}
+                                >
+                                    {isAnalyzing ? (locale === 'EN' ? "AI Analyzing..." : "AI กำลังวิเคราะห์...") : (locale === 'EN' ? "Generate AI Recommendations" : "สร้างคำแนะนำจาก AI")}
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -798,21 +863,26 @@ const PreCare = ({ locale: parentLocale, onBack, onGoToPostHarvest }) => {
                                     {validationResult.reason}
                                 </p>
                                 
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '40px' }}>
-                                    <div style={{ padding: '20px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
-                                        <i className="fa-solid fa-droplet" style={{ fontSize: '1.5rem', color: '#3b82f6', marginBottom: '10px' }}></i>
-                                        <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase' }}>{locale === 'EN' ? "Water Needs" : "ความต้องการน้ำ"}</div>
-                                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{validationResult.water_need}</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
+                                    <div style={{ padding: '15px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
+                                        <i className="fa-solid fa-temperature-half" style={{ fontSize: '1.2rem', color: '#f59e0b', marginBottom: '8px' }}></i>
+                                        <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{locale === 'EN' ? "Weather / Temp" : "สภาพอากาศ"}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.9rem' }}>{validationResult.weather || (locale === 'EN' ? "Optimal" : "เหมาะสม")}</div>
                                     </div>
-                                    <div style={{ padding: '20px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
-                                        <i className="fa-solid fa-hand-holding-hand" style={{ fontSize: '1.5rem', color: '#10b981', marginBottom: '10px' }}></i>
-                                        <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase' }}>{locale === 'EN' ? "Care Level" : "ระดับการดูแล"}</div>
-                                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{validationResult.care_level}</div>
+                                    <div style={{ padding: '15px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
+                                        <i className="fa-solid fa-cloud-rain" style={{ fontSize: '1.2rem', color: '#3b82f6', marginBottom: '8px' }}></i>
+                                        <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{locale === 'EN' ? "Humidity / Soil" : "ความชื้น"}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.9rem' }}>{validationResult.humidity || "65-80%"}</div>
                                     </div>
-                                    <div style={{ padding: '20px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
-                                        <i className="fa-solid fa-clock" style={{ fontSize: '1.5rem', color: '#8b5cf6', marginBottom: '10px' }}></i>
-                                        <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase' }}>{locale === 'EN' ? "Est. Harvest" : "ระยะเวลาเก็บเกี่ยว"}</div>
-                                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{validationResult.time_to_harvest}</div>
+                                    <div style={{ padding: '15px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
+                                        <i className="fa-solid fa-hand-holding-hand" style={{ fontSize: '1.2rem', color: '#10b981', marginBottom: '8px' }}></i>
+                                        <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{locale === 'EN' ? "Care Level" : "ระดับการดูแล"}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.9rem' }}>{validationResult.care_level}</div>
+                                    </div>
+                                    <div style={{ padding: '15px', background: '#f1f5f9', borderRadius: '20px', textAlign: 'center' }}>
+                                        <i className="fa-solid fa-clock" style={{ fontSize: '1.2rem', color: '#8b5cf6', marginBottom: '8px' }}></i>
+                                        <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{locale === 'EN' ? "Harvest" : "เก็บเกี่ยว"}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.9rem' }}>{validationResult.time_to_harvest}</div>
                                     </div>
                                 </div>
                                 

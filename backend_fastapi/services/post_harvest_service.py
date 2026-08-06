@@ -12,40 +12,53 @@ class PostHarvestService:
             genai.configure(api_key=gemini_api_key)
 
     async def _analyze_image(self, prompt: str, image_bytes: bytes) -> Dict:
-        """Helper to run Gemini Vision analysis."""
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            image_part = {"mime_type": "image/jpeg", "data": image_bytes}
-            response = model.generate_content([prompt, image_part])
-            
-            text = response.text.strip()
-            # Extract JSON from potential markdown blocks
-            if "```json" in text:
-                text = text.split("```json")[1].split("```")[0].strip()
-            elif "```" in text:
-                text = text.split("```")[1].split("```")[0].strip()
-            
-            return json.loads(text)
-        except Exception as e:
-            print(f"Post-Harvest Vision Error: {e}")
-            return {"error": str(e)}
+        """Helper to run Gemini Vision analysis with fallback."""
+        models = ["gemini-1.5-flash-latest", "gemini-1.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro-latest"]
+        last_error = ""
+        
+        for model_name in models:
+            try:
+                model = genai.GenerativeModel(model_name)
+                image_part = {"mime_type": "image/jpeg", "data": image_bytes}
+                response = model.generate_content([prompt, image_part])
+                
+                text = response.text.strip()
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0].strip()
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0].strip()
+                
+                return json.loads(text)
+            except Exception as e:
+                print(f"Post-Harvest Vision Fallback ({model_name}) failed: {e}")
+                last_error = str(e)
+                continue
+                
+        return {"error": last_error}
 
     async def _get_text_recommendation(self, prompt: str) -> Dict:
-        """Helper to run Gemini Text recommendation."""
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            response = model.generate_content(prompt)
-            
-            text = response.text.strip()
-            if "```json" in text:
-                text = text.split("```json")[1].split("```")[0].strip()
-            elif "```" in text:
-                text = text.split("```")[1].split("```")[0].strip()
-            
-            return json.loads(text)
-        except Exception as e:
-            print(f"Post-Harvest Text Error: {e}")
-            return {"error": str(e)}
+        """Helper to run Gemini Text recommendation with fallback."""
+        models = ["gemini-1.5-flash-latest", "gemini-1.5-flash", "gemini-1.5-pro-latest"]
+        last_error = ""
+        
+        for model_name in models:
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt)
+                
+                text = response.text.strip()
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0].strip()
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0].strip()
+                
+                return json.loads(text)
+            except Exception as e:
+                print(f"Post-Harvest Text Fallback ({model_name}) failed: {e}")
+                last_error = str(e)
+                continue
+                
+        return {"error": last_error}
 
     async def validate_agricultural_field(self, image_bytes: bytes, expected_crop: str = None) -> Dict:
         """

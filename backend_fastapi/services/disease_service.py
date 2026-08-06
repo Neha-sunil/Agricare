@@ -68,7 +68,7 @@ class DiseaseService:
 
     async def _call_gemini_disease(self, profile_id, crop_name, image_bytes, filename):
         # Fallback chain for Gemini models that are actually available for this user
-        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+        models_to_try = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"]
         prompt = f"Analyze this {crop_name} image for diseases. Return JSON: predicted_disease, confidence, symptoms, severity, recommendation."
         
         last_error = ""

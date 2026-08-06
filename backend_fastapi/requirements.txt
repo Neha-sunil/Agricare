@@ -10,3 +10,6 @@ numpy
 Pillow
 python-dotenv
 httpx
+transformers
+torch
+torchvision

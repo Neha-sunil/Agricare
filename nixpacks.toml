@@ -1,0 +1,3 @@
+[build]
+# This tells Railway to ignore the root and look into the subfolders if it gets lost
+# However, the UI "Root Directory" setting is still the best way.
